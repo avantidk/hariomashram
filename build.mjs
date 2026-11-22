@@ -4,7 +4,7 @@ import path from 'node:path';
 import { SITE_URL, ORG } from './src/config.mjs';
 import { posts } from './src/posts.mjs';
 
-const OUT = 'public';
+const OUT = '.';
 // L(en, hi): returns the English text and records the Hindi pair; the browser swaps text when the user toggles language.
 let reg = new Map();
 const L = (en, hi) => { if (reg.has(en) && reg.get(en) !== hi) console.warn('Conflicting translation for:', en); reg.set(en, hi); return en; };
@@ -198,16 +198,21 @@ const LOGO_W = 60;
 
 // ---------- write ----------
 fs.mkdirSync(OUT + '/css', { recursive: true }); fs.mkdirSync(OUT + '/js', { recursive: true });
-fs.copyFileSync('src/style.css', OUT + '/css/style.css'); fs.copyFileSync('src/main.js', OUT + '/js/main.js'); fs.copyFileSync('src/manifest.webmanifest', OUT + '/manifest.webmanifest');
+// If the site lives under a sub-path (e.g. github.io/hariomashram), prefix every root-relative link with it.
+const BASE = new URL(SITE_URL).pathname.replace(/\/$/, '');
+const fix = html => html.replace(/(href|src)="\/(?!\/)/g, `$1="${BASE}/`);
+fs.copyFileSync('src/style.css', OUT + '/css/style.css'); fs.copyFileSync('src/main.js', OUT + '/js/main.js');
+fs.writeFileSync(OUT + '/manifest.webmanifest', fs.readFileSync('src/manifest.webmanifest', 'utf8').replaceAll('"/', `"${BASE}/`));
+fs.writeFileSync(OUT + '/.nojekyll', '');
 const urls = [];
 for (const page of pages) {
   const dir = path.join(OUT, page.path);
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, 'index.html'), render(page));
+  fs.writeFileSync(path.join(dir, 'index.html'), fix(render(page)));
   urls.push(SITE_URL + '/' + page.path);
 }
 const today = new Date().toISOString().slice(0, 10);
 fs.writeFileSync(OUT + '/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(l => `<url><loc>${l}</loc><lastmod>${today}</lastmod></url>`).join('\n')}\n</urlset>\n`);
 fs.writeFileSync(OUT + '/robots.txt', `User-agent: *\nAllow: /\nSitemap: ${SITE_URL}/sitemap.xml\n`);
-fs.writeFileSync(OUT + '/404.html', render({ key: 'notfound', path: '404.html', title: ['Page not found', 'पृष्ठ नहीं मिला'], desc: ['Page not found', 'पृष्ठ नहीं मिला'], body: L => `<div class="container"><p>${L('Sorry, that page does not exist.', 'क्षमा करें, यह पृष्ठ मौजूद नहीं है।')} <a href="/">${L('Go home', 'होम पर जाएँ')}</a></p></div>` }).replace('<meta name="description"', '<meta name="robots" content="noindex"><meta name="description"'));
+fs.writeFileSync(OUT + '/404.html', fix(render({ key: 'notfound', path: '404.html', title: ['Page not found', 'पृष्ठ नहीं मिला'], desc: ['Page not found', 'पृष्ठ नहीं मिला'], body: L => `<div class="container"><p>${L('Sorry, that page does not exist.', 'क्षमा करें, यह पृष्ठ मौजूद नहीं है।')} <a href="/">${L('Go home', 'होम पर जाएँ')}</a></p></div>` })).replace('<meta name="description"', '<meta name="robots" content="noindex"><meta name="description"'));
 console.log(`Built ${urls.length} pages into ${OUT}/`);

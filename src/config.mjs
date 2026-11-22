@@ -1,5 +1,5 @@
 // Change SITE_URL to the real domain before launch (used for canonical URLs, sitemap, hreflang).
-export const SITE_URL = process.env.SITE_URL || 'https://www.example.org';
+export const SITE_URL = process.env.SITE_URL || 'https://avantidk.github.io/hariomashram';
 export const ORG = {
   name: { en: 'Hariom Ashram Kadwapani', hi: 'हरिओम आश्रम कड़वापानी' },
   addr: {
