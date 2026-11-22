@@ -5,6 +5,9 @@ import { SITE_URL, ORG } from './src/config.mjs';
 import { posts } from './src/posts.mjs';
 
 const OUT = 'public';
+// L(en, hi): returns the English text and records the Hindi pair; the browser swaps text when the user toggles language.
+let reg = new Map();
+const L = (en, hi) => { if (reg.has(en) && reg.get(en) !== hi) console.warn('Conflicting translation for:', en); reg.set(en, hi); return en; };
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const img = (n, alt, w, h, extra = '') => `<img src="/assets/img/${n}.webp" alt="${esc(alt)}" width="${w}" height="${h}" loading="lazy" decoding="async" ${extra}>`;
 const fmtDate = (d, lang) => new Date(d).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -110,7 +113,7 @@ ${cta(L, u)}` },
 { key: 'contact', path: 'contact/', title: ['Contact Us', 'संपर्क करें'],
   desc: ['Contact Hariom Ashram Kadwapani, Karbari Grant, Dehradun, Uttarakhand 248171. WhatsApp, social media and map.', 'हरिओम आश्रम कड़वापानी, करबारी ग्रांट, देहरादून, उत्तराखंड 248171 से संपर्क करें। WhatsApp, सोशल मीडिया और मानचित्र।'],
   body: (L, u) => `<div class="container two-col"><div>
-  <address><strong>${ORG.name[L.lang]}</strong><br>${ORG.addr[L.lang]}<br>WhatsApp: <a href="${ORG.whatsapp}" target="_blank" rel="noopener">${ORG.whatsappDisplay}</a></address>
+  <address><strong>${L(ORG.name.en, ORG.name.hi)}</strong><br>${L(ORG.addr.en, ORG.addr.hi)}<br>WhatsApp: <a href="${ORG.whatsapp}" target="_blank" rel="noopener">${ORG.whatsappDisplay}</a></address>
   <p class="social">${socialLinks()}</p>
   <a class="btn btn-ghost dark" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Kadwapani+Karbari+Grant+Dehradun+248171">${L('Open in Google Maps', 'गूगल मैप्स में खोलें')}</a></div>
   <form id="contact-form" class="form" novalidate data-fill="${L('Please fill all fields.', 'कृपया सभी फ़ील्ड भरें।')}" data-soon="${L('Thank you! Form submission will be enabled soon. Please message us on WhatsApp meanwhile.', 'धन्यवाद! फ़ॉर्म जल्द शुरू होगा। तब तक कृपया WhatsApp पर संदेश भेजें।')}">
@@ -125,79 +128,86 @@ function socialLinks() {
     `<a href="${ORG.whatsapp}" target="_blank" rel="noopener">WhatsApp</a>`;
 }
 function postCards(L, u, list) {
-  return list.map(p => `<a class="card link" href="${u('blog/' + p.slug + '/')}">${img(p.img, p.title[L.lang], 560, 560)}<time datetime="${p.date}">${fmtDate(p.date, L.lang)}</time><h3>${p.title[L.lang]}</h3><p>${p.excerpt[L.lang]}</p></a>`).join('');
+  return list.map(p => `<a class="card link" href="${u('blog/' + p.slug + '/')}">${img(p.img, L(p.title.en, p.title.hi), 560, 560)}<time datetime="${p.date}">${L(fmtDate(p.date, 'en'), fmtDate(p.date, 'hi'))}</time><h3>${L(p.title.en, p.title.hi)}</h3><p>${L(p.excerpt.en, p.excerpt.hi)}</p></a>`).join('');
 }
 
 // blog posts become pages too
 for (const p of posts) {
   pages.push({ key: 'post-' + p.slug, path: `blog/${p.slug}/`, crumbs: ['blog'], post: p, title: [p.title.en, p.title.hi], desc: [p.excerpt.en, p.excerpt.hi],
-    body: (L, u) => `<article class="container article"><time datetime="${p.date}">${fmtDate(p.date, L.lang)}</time>${img(p.img, p.title[L.lang], 560, 560, 'fetchpriority="high" loading="eager"')}${p.body[L.lang].map(t => `<p>${t}</p>`).join('')}<p><a class="btn btn-primary" href="${u('donate/')}">${L('Support our work', 'हमारे कार्य में सहयोग करें')}</a></p></article>` });
+    body: (L, u) => `<article class="container article"><time datetime="${p.date}">${L(fmtDate(p.date, 'en'), fmtDate(p.date, 'hi'))}</time>${img(p.img, L(p.title.en, p.title.hi), 560, 560, 'fetchpriority="high" loading="eager"')}${p.body.en.map((t, i) => `<p>${L(t, p.body.hi[i])}</p>`).join('')}<p><a class="btn btn-primary" href="${u('donate/')}">${L('Support our work', 'हमारे कार्य में सहयोग करें')}</a></p></article>` });
 }
 const byKey = Object.fromEntries(pages.map(p => [p.key, p]));
 
 // ---------- layout ----------
-function render(page, lang) {
-  const hi = lang === 'hi', pre = hi ? '/hi/' : '/';
-  const L = (en, h) => (hi ? h : en); L.lang = lang;
-  const u = p => pre + p;
-  const url = l => SITE_URL + (l === 'hi' ? '/hi/' : '/') + page.path;
-  const T = page.title[hi ? 1 : 0], D = page.desc[hi ? 1 : 0];
-  const full = page.key === 'home' ? `${ORG.name[lang]} | ${T}` : `${T} | ${ORG.name[lang]}`;
+const u = p => '/' + p;
+function render(page) {
+  reg = new Map();
+  const url = SITE_URL + '/' + page.path;
+  const T = L(page.title[0], page.title[1]);
+  const D = L(page.desc[0], page.desc[1]);
+  const full = page.key === 'home' ? L(`${ORG.name.en} | ${page.title[0]}`, `${ORG.name.hi} | ${page.title[1]}`) : L(`${page.title[0]} | ${ORG.name.en}`, `${page.title[1]} | ${ORG.name.hi}`);
+  const body = page.body(L, u);
   const nav = [['about/', L('About', 'हमारे बारे में')], ['our-work/', L('Our Work', 'हमारा कार्य')], ['blog/', L('Blog', 'ब्लॉग')], ['transparency/', L('Transparency', 'पारदर्शिता')], ['contact/', L('Contact', 'संपर्क')]]
     .map(([p, t]) => `<a href="${u(p)}"${page.path.startsWith(p) ? ' aria-current="page"' : ''}>${t}</a>`).join('');
-  const crumbs = page.key === 'home' ? '' : `<nav class="crumbs container" aria-label="breadcrumb"><a href="${u('')}">${L('Home', 'होम')}</a> › ${(page.crumbs || []).map(k => `<a href="${u(byKey[k].path)}">${byKey[k].title[hi ? 1 : 0]}</a> › `).join('')}<span>${T}</span></nav>`;
-  const head = page.key === 'home' ? '' : `<header class="page-head"><div class="container">${crumbs.replace('class="crumbs container"', 'class="crumbs"')}<h1>${T}</h1></div></header>`;
-  const ld = [{ '@context': 'https://schema.org', '@type': 'NGO', name: ORG.name.en, url: SITE_URL + '/', logo: SITE_URL + '/assets/logo.svg', sameAs: Object.values(ORG.social),
+  const crumbs = `<nav class="crumbs" aria-label="breadcrumb"><a href="${u('')}">${L('Home', 'होम')}</a> › ${(page.crumbs || []).map(k => `<a href="${u(byKey[k].path)}">${L(byKey[k].title[0], byKey[k].title[1])}</a> › `).join('')}<span>${T}</span></nav>`;
+  const head = page.key === 'home' ? '' : `<header class="page-head"><div class="container">${crumbs}<h1>${T}</h1></div></header>`;
+  const ld = [{ '@context': 'https://schema.org', '@type': 'NGO', name: ORG.name.en, url: SITE_URL + '/', logo: SITE_URL + '/assets/logo-large.webp', sameAs: Object.values(ORG.social),
     address: { '@type': 'PostalAddress', streetAddress: 'Kadwapani, Karbari Grant', addressLocality: 'Dehradun', addressRegion: 'Uttarakhand', postalCode: '248171', addressCountry: 'IN' } }];
-  if (page.post) ld.push({ '@context': 'https://schema.org', '@type': 'BlogPosting', headline: page.post.title[lang], datePublished: page.post.date, image: SITE_URL + `/assets/img/${page.post.img}.webp`, inLanguage: lang, mainEntityOfPage: url(lang), publisher: { '@type': 'Organization', name: ORG.name.en } });
-  const other = hi ? 'en' : 'hi';
+  if (page.post) ld.push({ '@context': 'https://schema.org', '@type': 'BlogPosting', headline: page.post.title.en, datePublished: page.post.date, image: SITE_URL + `/assets/img/${page.post.img}.webp`, mainEntityOfPage: url, publisher: { '@type': 'Organization', name: ORG.name.en } });
+  const btnLabel = L('हिंदी', 'English');
+  const footName = L(ORG.name.en, ORG.name.hi), footAddr = L(ORG.addr.en, ORG.addr.hi);
+  const footer = `<footer class="site-footer"><div class="container foot-grid">
+  <div><strong>${footName}</strong><p>${footAddr}</p><p>${taxShort(L)}</p></div>
+  <div><strong>${L('Explore', 'अन्वेषण')}</strong><p class="flinks">${nav}<a href="${u('donate/')}">${L('Donate', 'दान करें')}</a></p></div>
+  <div><strong>${L('Follow us', 'हमसे जुड़ें')}</strong><p class="social">${socialLinks()}</p></div></div>
+  <div class="container copy">© ${new Date().getFullYear()} ${footName}</div></footer>`;
+  const skip = L('Skip to content', 'मुख्य सामग्री पर जाएँ'), menuLbl = L('Menu', 'मेनू'), donate = L('Donate', 'दान करें');
+  const brandTitle = L('Hariom Ashram', 'हरिओम आश्रम');
+  const dict = JSON.stringify(Object.fromEntries(reg)).replace(/</g, '\\u003c');
   return `<!doctype html>
-<html lang="${lang}">
+<html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(full)}</title>
 <meta name="description" content="${esc(D)}">
-<link rel="canonical" href="${url(lang)}">
-<link rel="alternate" hreflang="en" href="${url('en')}"><link rel="alternate" hreflang="hi" href="${url('hi')}"><link rel="alternate" hreflang="x-default" href="${url('en')}">
-<meta property="og:type" content="${page.post ? 'article' : 'website'}"><meta property="og:site_name" content="${esc(ORG.name[lang])}"><meta property="og:title" content="${esc(full)}"><meta property="og:description" content="${esc(D)}"><meta property="og:url" content="${url(lang)}"><meta property="og:locale" content="${hi ? 'hi_IN' : 'en_IN'}"><meta property="og:image" content="${SITE_URL}/assets/img/${page.post ? page.post.img : 'cows-in-shed'}.webp">
+<link rel="canonical" href="${url}">
+<meta property="og:type" content="${page.post ? 'article' : 'website'}"><meta property="og:site_name" content="${esc(ORG.name.en)}"><meta property="og:title" content="${esc(full)}"><meta property="og:description" content="${esc(D)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${SITE_URL}/assets/img/${page.post ? page.post.img : 'cows-in-shed'}.webp">
 <meta name="theme-color" content="#2E7D32">
-<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><link rel="manifest" href="/manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css">
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
 </head>
 <body>
-<a class="skip" href="#main">${L('Skip to content', 'मुख्य सामग्री पर जाएँ')}</a>
+<a class="skip" href="#main">${skip}</a>
 <header class="site-header"><div class="container nav">
-  <a class="brand" href="${u('')}"><img src="/assets/logo.svg" alt="" width="44" height="44"><span><strong>${hi ? 'हरिओम आश्रम' : 'Hariom Ashram'}</strong><small>${hi ? 'कड़वापानी' : 'Kadwapani'}</small></span></a>
-  <button class="menu-btn" aria-label="${L('Menu', 'मेनू')}" aria-expanded="false" aria-controls="menu">☰</button>
+  <a class="brand" href="${u('')}"><img src="/assets/logo.webp" alt="" width="${LOGO_W}" height="64"><span><strong>${brandTitle}</strong><small>गौशाला । गुरुकुल । पर्यावरण</small></span></a>
+  <button class="menu-btn" aria-label="${menuLbl}" aria-expanded="false" aria-controls="menu">☰</button>
   <nav id="menu" class="menu">${nav}
-    <a class="lang-switch" href="${url(other).replace(SITE_URL, '')}" hreflang="${other}" lang="${other}">${hi ? 'English' : 'हिंदी'}</a>
-    <a class="btn btn-primary" href="${u('donate/')}">${L('Donate', 'दान करें')}</a></nav></div></header>
-<main id="main">${head}${page.key === 'home' || page.key.startsWith('post-') || true ? '' : ''}<div class="${page.key === 'home' ? '' : 'section'}">${page.body(L, u)}</div></main>
-<footer class="site-footer"><div class="container foot-grid">
-  <div><strong>${ORG.name[lang]}</strong><p>${ORG.addr[lang]}</p><p>${taxShort(L)}</p></div>
-  <div><strong>${L('Explore', 'अन्वेषण')}</strong><p class="flinks">${nav}<a href="${u('donate/')}">${L('Donate', 'दान करें')}</a></p></div>
-  <div><strong>${L('Follow us', 'हमसे जुड़ें')}</strong><p class="social">${socialLinks()}</p></div></div>
-  <div class="container copy">© ${new Date().getFullYear()} ${ORG.name[lang]}</div></footer>
-<script src="/js/main.js" defer></script>
+    <button type="button" class="lang-switch" data-lang-toggle>${btnLabel}</button>
+    <a class="btn btn-primary" href="${u('donate/')}">${donate}</a></nav></div></header>
+<main id="main">${head}<div class="${page.key === 'home' ? '' : 'section'}">${body}</div></main>
+${footer}
+<script type="application/json" id="hi-dict">${dict}</script>
+<script src="/js/main.js"></script>
 </body></html>`;
 }
 const taxShort = L => L('80G tax exempted · Reg. No AABTH0927L22LK01', '80G कर-मुक्त · पंजीकरण संख्या AABTH0927L22LK01');
+const LOGO_W = 60;
 
 // ---------- write ----------
 fs.mkdirSync(OUT + '/css', { recursive: true }); fs.mkdirSync(OUT + '/js', { recursive: true });
-fs.copyFileSync('src/style.css', OUT + '/css/style.css'); fs.copyFileSync('src/main.js', OUT + '/js/main.js');
+fs.copyFileSync('src/style.css', OUT + '/css/style.css'); fs.copyFileSync('src/main.js', OUT + '/js/main.js'); fs.copyFileSync('src/manifest.webmanifest', OUT + '/manifest.webmanifest');
 const urls = [];
-for (const page of pages) for (const lang of ['en', 'hi']) {
-  const dir = path.join(OUT, lang === 'hi' ? 'hi' : '', page.path);
+for (const page of pages) {
+  const dir = path.join(OUT, page.path);
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, 'index.html'), render(page, lang));
-  urls.push(SITE_URL + (lang === 'hi' ? '/hi/' : '/') + page.path);
+  fs.writeFileSync(path.join(dir, 'index.html'), render(page));
+  urls.push(SITE_URL + '/' + page.path);
 }
 const today = new Date().toISOString().slice(0, 10);
 fs.writeFileSync(OUT + '/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(l => `<url><loc>${l}</loc><lastmod>${today}</lastmod></url>`).join('\n')}\n</urlset>\n`);
 fs.writeFileSync(OUT + '/robots.txt', `User-agent: *\nAllow: /\nSitemap: ${SITE_URL}/sitemap.xml\n`);
-fs.writeFileSync(OUT + '/404.html', render({ key: 'notfound', path: '404.html', title: ['Page not found', 'पृष्ठ नहीं मिला'], desc: ['Page not found', 'पृष्ठ नहीं मिला'], body: L => `<div class="container"><p>${L('Sorry, that page does not exist.', 'क्षमा करें, यह पृष्ठ मौजूद नहीं है।')} <a href="/">${L('Go home', 'होम पर जाएँ')}</a></p></div>` }, 'en').replace('<meta name="description"', '<meta name="robots" content="noindex"><meta name="description"'));
+fs.writeFileSync(OUT + '/404.html', render({ key: 'notfound', path: '404.html', title: ['Page not found', 'पृष्ठ नहीं मिला'], desc: ['Page not found', 'पृष्ठ नहीं मिला'], body: L => `<div class="container"><p>${L('Sorry, that page does not exist.', 'क्षमा करें, यह पृष्ठ मौजूद नहीं है।')} <a href="/">${L('Go home', 'होम पर जाएँ')}</a></p></div>` }).replace('<meta name="description"', '<meta name="robots" content="noindex"><meta name="description"'));
 console.log(`Built ${urls.length} pages into ${OUT}/`);
