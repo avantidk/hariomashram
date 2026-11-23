@@ -1,12 +1,54 @@
 import { ORG } from './config.mjs';
 import { img, icon } from './helpers.mjs';
 import { workCards, cta, features, checks, steps, section, taxNote } from './blocks.mjs';
+import { posts } from './posts.mjs';
+import { campaigns, campaignCard } from './campaigns.mjs';
+const fmt = (d, lang) => new Date(d).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
 
 const wa = (L, label) => `<a class="btn btn-primary" target="_blank" rel="noopener" href="${ORG.whatsapp}">${icon('whatsapp-f')} ${label}</a>`;
 const fig = (n, alt, w, h) => `<figure class="fig">${img(n, alt, w, h)}</figure>`;
 const split = (text, photo, rev) => `<div class="two-col${rev ? ' rev' : ''}"><div>${text}</div><div class="photo">${photo}</div></div>`;
 
 export default [
+// ---------------- Home ----------------
+{ key: 'home', path: '', title: ['Gaushala, Gurukul & Environment in Dehradun', 'देहरादून में गौशाला, गुरुकुल और पर्यावरण सेवा'],
+  desc: ['Hariom Ashram Kadwapani, Karbari Grant, Dehradun: gaushalas, gurukul education and environment work. Donate with 80G tax benefit.', 'हरिओम आश्रम कड़वापानी, करबारी ग्रांट, देहरादून: गौशालाएँ, गुरुकुल शिक्षा और पर्यावरण कार्य। 80G कर-लाभ के साथ दान करें।'],
+  body: (L, u) => [
+    `<section class="hero"><div class="container hero-grid">
+      <div><p class="eyebrow">${L('Gaushala · Gurukul · Environment', 'गौशाला · गुरुकुल · पर्यावरण')}</p>
+      <h1>${L('Serving cows, nurturing children, protecting nature.', 'गौसेवा, बच्चों की शिक्षा और प्रकृति का संरक्षण।')}</h1>
+      <p class="lead">${L('For over 20 years, Hariom Ashram has sheltered rescued cows, educated underprivileged children and greened the land around Dehradun.', '20 वर्षों से अधिक समय से हरिओम आश्रम रेस्क्यू की गई गायों को आश्रय, वंचित बच्चों को शिक्षा और देहरादून के आसपास की भूमि को हरा-भरा करने का कार्य कर रहा है।')}</p>
+      <div class="actions"><a class="btn btn-primary" href="${u('campaigns/')}">${icon('heart')} ${L('Donate Now', 'अभी दान करें')}</a><a class="btn btn-ghost" href="${u('our-work/')}">${L('See Our Work', 'हमारा कार्य देखें')}</a></div>
+      <ul class="trust"><li>${icon('shield')} ${L('80G tax benefit', '80G कर-लाभ')}</li><li>${icon('award')} ${L('Serving since 2006', '2006 से सेवारत')}</li><li>${icon('home')} ${L('3 gaushalas', '3 गौशालाएँ')}</li></ul></div>
+      <div class="hero-art"><span class="ring"></span>${img('swami-with-calf', L('Ashram swami lovingly holding a rescued calf', 'आश्रम के स्वामीजी एक बचाए गए बछड़े को स्नेह से थामे हुए'), 413, 450, 'fetchpriority="high" loading="eager"')}</div>
+    </div></section>`,
+    `<section class="impact"><div class="container impact-grid">
+      <div><strong>20+</strong><span>${L('Years of seva', 'वर्षों की सेवा')}</span></div>
+      <div><strong>3</strong><span>${L('Gaushalas', 'गौशालाएँ')}</span></div>
+      <div><strong>2,000</strong><span>${L('Cows can be sheltered', 'गायों के आश्रय की क्षमता')}</span></div>
+      <div><strong>30,000+</strong><span>${L('Animals served', 'पशुओं की सेवा')}</span></div></div></section>`,
+    section('', `<div class="two-col"><div class="photo">${img('cow-eating-gaushala', L('A cow eating fresh vegetables at the gaushala', 'गौशाला में ताज़ी सब्ज़ियाँ खाती एक गाय'), 480, 480)}</div>
+      <div><p class="eyebrow dark">${L('About Hariom Ashram', 'हरिओम आश्रम के बारे में')}</p><h2>${L('Service to living beings, education and nature, together', 'जीव सेवा, शिक्षा और प्रकृति: एक साथ')}</h2>
+      <p>${L('Founded in 2006, Hariom Ashram is a not-for-profit organisation at Kadwapani, Dehradun. Every rupee donated goes towards building well-run shelters for stray cows and caring for children.', '2006 में स्थापित हरिओम आश्रम, कड़वापानी, देहरादून में स्थित एक गैर-लाभकारी संस्था है। दान किया गया हर रुपया बेसहारा गायों के सुव्यवस्थित आश्रय और बच्चों की देखभाल में लगता है।')}</p>
+      ${checks(L, [['Registered with the Animal Welfare Board', 'जीव जंतु कल्याण बोर्ड में पंजीकृत'], ['80G tax-exempt donations', '80G कर-मुक्त दान'], ['Bank details published openly', 'बैंक विवरण सार्वजनिक']])}
+      <p style="margin-top:20px"><a class="btn btn-ghost dark" href="${u('about-hariom-ashram/')}">${L('Read more', 'और जानें')} ${icon('arrow')}</a></p></div></div>`),
+    section('alt', `<div class="sec-head"><p class="eyebrow dark">${L('What we do', 'हम क्या करते हैं')}</p><h2>${L('Three pillars of our work', 'हमारे कार्य के तीन स्तंभ')}</h2></div>${workCards(L, u)}`),
+    section('', `<div class="sec-head"><p class="eyebrow dark">${L('Campaigns', 'अभियान')}</p><h2>${L('Support a cause close to your heart', 'अपने हृदय के निकट किसी कार्य का सहयोग करें')}</h2></div>
+      <div class="cards">${campaigns.map(c => campaignCard(L, u, c)).join('')}</div>`),
+    section('alt', `<div class="sec-head"><p class="eyebrow dark">${L('Why give through us', 'हमारे माध्यम से दान क्यों')}</p><h2>${L('Transparent, direct and tax-exempt', 'पारदर्शी, सीधा और कर-मुक्त')}</h2></div>
+      ${features(L, [
+        ['shield', '80G tax exemption', '80G कर-छूट', 'Donations are tax exempted under section 80G(5)(iii).', 'दान धारा 80G(5)(iii) के अंतर्गत कर-मुक्त हैं।'],
+        ['file', 'Open bank details', 'खुले बैंक विवरण', 'Account and UPI details are public, with receipts on request.', 'खाता और UPI विवरण सार्वजनिक हैं, अनुरोध पर रसीद।'],
+        ['heart', 'Direct to the cause', 'सीधे सेवा में', 'Fodder, medicine and meals reach the cows and children.', 'चारा, दवाइयाँ और भोजन सीधे गायों और बच्चों तक पहुँचते हैं।'],
+        ['award', '20+ years of trust', '20+ वर्षों का विश्वास', 'Built through years of community support.', 'वर्षों के जन-सहयोग से निर्मित।']])}
+      <p class="center"><a class="btn btn-ghost dark" href="${u('transparency/')}">${icon('file')} ${L('See bank & tax details', 'बैंक एवं कर विवरण देखें')}</a></p>`),
+    section('', `<div class="sec-head"><p class="eyebrow dark">${L('Glimpses', 'झलकियाँ')}</p><h2>${L('Seva at the gaushala', 'गौशाला में सेवा')}</h2></div>
+      <div class="gallery g4">${img('cows-in-shed', L('Cows resting in the gaushala shed', 'गौशाला के शेड में गौमाताएँ'), 600, 338)}${img('fodder-shed-seva', L('Workers handling green fodder in the fodder shed', 'चारा शेड में हरा चारा संभालते कार्यकर्ता'), 640, 360)}${img('dung-cleaning-seva', L('Workers cleaning the cow shed floor', 'गौशाला के फर्श की सफाई करते कार्यकर्ता'), 640, 360)}${img('fodder-truck-unloading', L('Green fodder being unloaded from a truck', 'ट्रक से उतारा जा रहा हरा चारा'), 640, 360)}</div>`),
+    section('alt', `<div class="sec-head"><p class="eyebrow dark">${L('From the blog', 'ब्लॉग से')}</p><h2>${L('Latest updates', 'ताज़ा समाचार')}</h2></div>
+      <div class="cards">${posts.slice(0, 3).map(p => `<a class="card link" href="${u('blog/' + p.slug + '/')}">${img(p.img, L(p.title.en, p.title.hi), 560, 560)}<time datetime="${p.date}">${L(fmt(p.date, 'en'), fmt(p.date, 'hi'))}</time><h3>${L(p.title.en, p.title.hi)}</h3><p>${L(p.excerpt.en, p.excerpt.hi)}</p></a>`).join('')}</div>
+      <p class="center"><a class="btn btn-ghost dark" href="${u('blog/')}">${L('All posts', 'सभी पोस्ट')} ${icon('arrow')}</a></p>`),
+    cta(L, u)].join('') },
+
 // ---------------- About ----------------
 { key: 'about', path: 'about-hariom-ashram/', title: ['About Hariom Ashram', 'हरिओम आश्रम के बारे में'],
   desc: ['Hariom Ashram is a not-for-profit NGO in Dehradun serving cows, children and the environment for over 20 years.', 'हरिओम आश्रम देहरादून की एक गैर-लाभकारी संस्था है, जो 20 वर्षों से अधिक समय से गौसेवा, बच्चों और पर्यावरण की सेवा कर रही है।'],

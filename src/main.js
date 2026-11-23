@@ -45,6 +45,16 @@
   var btn = $('.menu-btn'), menu = $('#menu');
   if (btn) btn.addEventListener('click', function () { btn.setAttribute('aria-expanded', menu.classList.toggle('open')); });
 
+  // Amount chips on campaign pages
+  $$('[data-chip]').forEach(function (c) {
+    c.addEventListener('click', function () {
+      var input = $('#custom-amount');
+      $$('[data-chip]').forEach(function (x) { x.classList.remove('on'); });
+      c.classList.add('on');
+      if (c.dataset.chip === 'other') { input.value = ''; input.focus(); } else { input.value = c.dataset.chip; }
+    });
+  });
+
   // Donation hook: wire Razorpay Checkout + Supabase here later.
   // Replace window.HariomDonate.start with a function that opens Razorpay and records the payment.
   window.HariomDonate = window.HariomDonate || {

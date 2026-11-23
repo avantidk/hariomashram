@@ -6,6 +6,7 @@ import { posts } from './src/posts.mjs';
 import { esc, img, icon } from './src/helpers.mjs';
 import { taxNote, bankBox, workCards, cta } from './src/blocks.mjs';
 import contentPages from './src/content.mjs';
+import { campaigns, campaignPages } from './src/campaigns.mjs';
 
 const OUT = '.';
 // L(en, hi): returns the English text and records the Hindi pair; the browser swaps text when the user toggles language.
@@ -25,29 +26,6 @@ const donateCards = (L) => `
 
 
 const pages = [
-{ key: 'home', path: '', title: ['Gaushala, Gurukul & Environment in Dehradun', 'देहरादून में गौशाला, गुरुकुल और पर्यावरण सेवा'],
-  desc: ['Hariom Ashram Kadwapani, Karbari Grant, Dehradun: cow shelter, gurukul education and environment work. Donate with 80G tax benefit.', 'हरिओम आश्रम कड़वापानी, करबारी ग्रांट, देहरादून: गौशाला, गुरुकुल शिक्षा और पर्यावरण सेवा। 80G कर-लाभ के साथ दान करें।'],
-  body: (L, u) => `
-<section class="hero"><div class="container hero-grid">
-  <div><p class="eyebrow">${L('Gaushala · Gurukul · Environment', 'गौशाला · गुरुकुल · पर्यावरण')}</p>
-  <h1>${L('Serving cows, nurturing children, protecting nature.', 'गौसेवा, बच्चों की शिक्षा और प्रकृति का संरक्षण।')}</h1>
-  <p class="lead">${L('Hariom Ashram Kadwapani is a community-run ashram near Dehradun, caring for rescued cows, educating children and greening the land.', 'हरिओम आश्रम कड़वापानी देहरादून के पास एक सामुदायिक आश्रम है, जहाँ बेसहारा गौमाताओं की सेवा, बच्चों की शिक्षा और भूमि को हरा-भरा करने का कार्य होता है।')}</p>
-  <div class="actions"><a class="btn btn-primary" href="${u('donate/')}">${L('Donate Now', 'अभी दान करें')}</a><a class="btn btn-ghost" href="${u('our-work/')}">${L('See Our Work', 'हमारा कार्य देखें')}</a></div></div>
-  <div class="hero-art">${img('swami-with-calf', L('Ashram swami lovingly holding a rescued calf', 'आश्रम के स्वामीजी एक बचाए गए बछड़े को स्नेह से थामे हुए'), 413, 450, 'fetchpriority="high" loading="eager"')}</div>
-</div></section>
-<section class="stats"><div class="container stat-grid">
- <a href="${u('animal-rescue/')}"><b>${icon('heart')}</b><span>${L('Animal rescue', 'पशु रक्षा')}</span></a><a href="${u('gaushalas-cow-shelters/')}"><b>${icon('home')}</b><span>${L('Gaushalas', 'गौशालाएँ')}</span></a>
- <a href="${u('gurukul/')}"><b>${icon('book')}</b><span>${L('Gurukul education', 'गुरुकुल शिक्षा')}</span></a><a href="${u('environment/')}"><b>${icon('tree')}</b><span>${L('Environment', 'पर्यावरण')}</span></a></div></section>
-<section class="section"><div class="container two-col">
-  <div><h2>${L('About Us', 'हमारे बारे में')}</h2>
-  <p>${L('Hariom Ashram Kadwapani was founded on the belief that service to living beings, education and care for the environment belong together.', 'हरिओम आश्रम कड़वापानी इस विश्वास पर स्थापित है कि जीव सेवा, शिक्षा और पर्यावरण की देखभाल एक-दूसरे से जुड़ी हैं।')}</p>
-  <a class="btn btn-ghost dark" href="${u('about-hariom-ashram/')}">${L('Read more', 'और जानें')}</a></div>
-  <div class="photo">${img('cow-eating-gaushala', L('A cow eating fresh vegetables at the gaushala', 'गौशाला में ताज़ी सब्ज़ियाँ खाती एक गाय'), 480, 480)}</div></div></section>
-<section class="section alt"><div class="container"><h2>${L('What We Do', 'हम क्या करते हैं')}</h2><p class="sub">${L('Three pillars guide everything the ashram does.', 'तीन स्तंभ आश्रम के हर कार्य का आधार हैं।')}</p>${workCards(L, u)}</div></section>
-<section class="section"><div class="container"><h2>${L('Support Our Work', 'हमारे कार्य में सहयोग करें')}</h2><p class="sub">${L('Every contribution goes directly towards the care of cows, children and the environment.', 'आपका हर योगदान सीधे गौसेवा, बच्चों और पर्यावरण के कार्य में लगता है।')}</p>${donateCards(L)}${taxNote(L)}</div></section>
-<section class="section alt"><div class="container"><h2>${L('Latest from the Blog', 'ब्लॉग से ताज़ा')}</h2><div class="cards">${postCards(L, u, posts.slice(0, 3))}</div><p style="margin-top:20px"><a class="btn btn-ghost dark" href="${u('blog/')}">${L('All posts', 'सभी पोस्ट')}</a></p></div></section>
-${cta(L, u)}` },
-
 { key: 'donate', path: 'donate/', title: ['Donate', 'दान करें'],
   desc: ['Donate to Hariom Ashram Kadwapani for cow care, gurukul education and the environment. 80G tax benefit available.', 'गौसेवा, गुरुकुल शिक्षा और पर्यावरण के लिए हरिओम आश्रम कड़वापानी को दान करें। 80G कर-लाभ उपलब्ध।'],
   body: (L, u) => `<div class="container">${donateCards(L)}${taxNote(L)}<div class="two-col" style="margin-top:32px">${bankBox(L)}<div class="photo">${img('calf-at-ashram', L('A young calf at the ashram', 'आश्रम का एक बछड़ा'), 560, 560)}</div></div></div>` },
@@ -82,7 +60,7 @@ function postCards(L, u, list) {
   return list.map(p => `<a class="card link" href="${u('blog/' + p.slug + '/')}">${img(p.img, L(p.title.en, p.title.hi), 560, 560)}<time datetime="${p.date}">${L(fmtDate(p.date, 'en'), fmtDate(p.date, 'hi'))}</time><h3>${L(p.title.en, p.title.hi)}</h3><p>${L(p.excerpt.en, p.excerpt.hi)}</p></a>`).join('');
 }
 
-pages.splice(1, 0, ...contentPages);
+pages.splice(0, 0, ...contentPages, ...campaignPages);
 // blog posts become pages too
 for (const p of posts) {
   pages.push({ key: 'post-' + p.slug, path: `blog/${p.slug}/`, crumbs: ['blog'], post: p, title: [p.title.en, p.title.hi], desc: [p.excerpt.en, p.excerpt.hi],
@@ -99,8 +77,11 @@ function render(page) {
   const D = L(page.desc[0], page.desc[1]);
   const full = page.key === 'home' ? L(`${ORG.name.en} | ${page.title[0]}`, `${ORG.name.hi} | ${page.title[1]}`) : L(`${page.title[0]} | ${ORG.name.en}`, `${page.title[1]} | ${ORG.name.hi}`);
   const body = page.body(L, u);
-  const nav = [['about-hariom-ashram/', L('About', 'हमारे बारे में')], ['our-work/', L('Our Work', 'हमारा कार्य')], ['csr/', L('CSR', 'CSR')], ['blog/', L('Blog', 'ब्लॉग')], ['contact/', L('Contact', 'संपर्क')]]
-    .map(([p, t]) => `<a href="${u(p)}"${page.path.startsWith(p) ? ' aria-current="page"' : ''}>${t}</a>`).join('');
+  const lnk = (p, t) => `<a href="${u(p)}"${page.path.startsWith(p) && p ? ' aria-current="page"' : ''}>${t}</a>`;
+  const campLabel = L('Campaign', 'अभियान');
+  const dropdown = `<div class="dd"><a href="${u('campaigns/')}"${page.path.startsWith('campaigns/') ? ' aria-current="page"' : ''}>${campLabel} <span class="caret" aria-hidden="true">▾</span></a><div class="dd-menu">${campaigns.map(c => lnk(`campaigns/${c.slug}/`, L(c.title.en, c.title.hi))).join('')}</div></div>`;
+  const nav = lnk('about-hariom-ashram/', L('About', 'हमारे बारे में')) + lnk('our-work/', L('Our Work', 'हमारा कार्य')) + dropdown + lnk('csr/', L('CSR', 'CSR')) + lnk('blog/', L('Blog', 'ब्लॉग')) + lnk('contact/', L('Contact', 'संपर्क'));
+  const footNav = lnk('about-hariom-ashram/', L('About', 'हमारे बारे में')) + lnk('our-work/', L('Our Work', 'हमारा कार्य')) + lnk('campaigns/', campLabel) + lnk('csr/', L('CSR', 'CSR')) + lnk('blog/', L('Blog', 'ब्लॉग')) + lnk('transparency/', L('Transparency', 'पारदर्शिता')) + lnk('contact/', L('Contact', 'संपर्क'));
   const crumbs = `<nav class="crumbs" aria-label="breadcrumb"><a href="${u('')}">${L('Home', 'होम')}</a> › ${(page.crumbs || []).map(k => `<a href="${u(byKey[k].path)}">${L(byKey[k].title[0], byKey[k].title[1])}</a> › `).join('')}<span>${T}</span></nav>`;
   const head = page.key === 'home' ? '' : `<header class="page-head"><div class="container">${crumbs}<h1>${T}</h1></div></header>`;
   const ld = [{ '@context': 'https://schema.org', '@type': 'NGO', name: ORG.name.en, url: SITE_URL + '/', logo: SITE_URL + '/assets/logo-large.webp', sameAs: Object.values(ORG.social),
@@ -110,7 +91,7 @@ function render(page) {
   const footName = L(ORG.name.en, ORG.name.hi), footAddr = L(ORG.addr.en, ORG.addr.hi);
   const footer = `<footer class="site-footer"><div class="container foot-grid">
   <div><strong>${footName}</strong><p>${footAddr}</p><p>${taxShort(L)}</p></div>
-  <div><strong>${L('Explore', 'अन्वेषण')}</strong><p class="flinks">${nav}<a href="${u('donate/')}">${L('Donate', 'दान करें')}</a></p></div>
+  <div><strong>${L('Explore', 'अन्वेषण')}</strong><p class="flinks">${footNav}<a href="${u('donate/')}">${L('Donate', 'दान करें')}</a></p></div>
   <div><strong>${L('Follow us', 'हमसे जुड़ें')}</strong><p class="social">${socialLinks()}</p></div></div>
   <div class="container copy">© ${new Date().getFullYear()} ${footName}</div></footer>`;
   const skip = L('Skip to content', 'मुख्य सामग्री पर जाएँ'), menuLbl = L('Menu', 'मेनू'), donate = L('Donate', 'दान करें');
@@ -133,6 +114,7 @@ function render(page) {
 </head>
 <body>
 <a class="skip" href="#main">${skip}</a>
+<div class="topbar"><div class="container">${icon('shield')} <span>${L('All donations are tax exempted under section 80G(5)(iii) of Income Tax Act', 'सभी दान आयकर अधिनियम की धारा 80G(5)(iii) के अंतर्गत कर-मुक्त हैं')}</span></div></div>
 <header class="site-header"><div class="container nav">
   <a class="brand" href="${u('')}"><img src="/assets/logo.webp" alt="" width="${LOGO_W}" height="64"><span><strong>${brandTitle}</strong><small>गौशाला । गुरुकुल । पर्यावरण</small></span></a>
   <button class="menu-btn" aria-label="${menuLbl}" aria-expanded="false" aria-controls="menu">☰</button>
@@ -153,7 +135,7 @@ fs.mkdirSync(OUT + '/css', { recursive: true }); fs.mkdirSync(OUT + '/js', { rec
 // If the site lives under a sub-path (e.g. github.io/hariomashram), prefix every root-relative link with it.
 const BASE = new URL(SITE_URL).pathname.replace(/\/$/, '');
 const fix = html => html.replace(/(href|src)="\/(?!\/)/g, `$1="${BASE}/`);
-fs.copyFileSync('src/style.css', OUT + '/css/style.css'); fs.copyFileSync('src/main.js', OUT + '/js/main.js');
+fs.writeFileSync(OUT + '/css/style.css', fs.readFileSync('src/style.css', 'utf8') + '\n' + fs.readFileSync('src/style-extra.css', 'utf8')); fs.copyFileSync('src/main.js', OUT + '/js/main.js');
 fs.writeFileSync(OUT + '/manifest.webmanifest', fs.readFileSync('src/manifest.webmanifest', 'utf8').replaceAll('"/', `"${BASE}/`));
 fs.writeFileSync(OUT + '/.nojekyll', '');
 const urls = [];
