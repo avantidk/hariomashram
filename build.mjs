@@ -79,14 +79,22 @@ function render(page) {
   const body = page.body(L, u);
   const lnk = (p, t) => `<a href="${u(p)}"${page.path.startsWith(p) && p ? ' aria-current="page"' : ''}>${t}</a>`;
   const campLabel = L('Campaign', 'अभियान');
-  const dropdown = `<div class="dd"><a href="${u('campaigns/')}"${page.path.startsWith('campaigns/') ? ' aria-current="page"' : ''}>${campLabel} <span class="caret" aria-hidden="true">▾</span></a><div class="dd-menu">${campaigns.map(c => lnk(`campaigns/${c.slug}/`, L(c.title.en, c.title.hi))).join('')}</div></div>`;
+  const dropdown = `<div class="dd"><a href="${u('campaigns/')}"${page.path.startsWith('campaigns/') ? ' aria-current="page"' : ''}>${campLabel} <span class="caret" aria-hidden="true">▾</span></a><button type="button" class="dd-toggle" aria-expanded="false" aria-label="${L('Show campaign menu', 'अभियान मेनू खोलें')}"><span aria-hidden="true">▾</span></button><div class="dd-menu">${campaigns.map(c => lnk(`campaigns/${c.slug}/`, L(c.title.en, c.title.hi))).join('')}</div></div>`;
   const nav = lnk('about-hariom-ashram/', L('About', 'हमारे बारे में')) + lnk('our-work/', L('Our Work', 'हमारा कार्य')) + dropdown + lnk('csr/', L('CSR', 'CSR')) + lnk('blog/', L('Blog', 'ब्लॉग')) + lnk('contact/', L('Contact', 'संपर्क'));
   const footNav = lnk('about-hariom-ashram/', L('About', 'हमारे बारे में')) + lnk('our-work/', L('Our Work', 'हमारा कार्य')) + lnk('campaigns/', campLabel) + lnk('csr/', L('CSR', 'CSR')) + lnk('blog/', L('Blog', 'ब्लॉग')) + lnk('transparency/', L('Transparency', 'पारदर्शिता')) + lnk('contact/', L('Contact', 'संपर्क'));
   const crumbs = `<nav class="crumbs" aria-label="breadcrumb"><a href="${u('')}">${L('Home', 'होम')}</a> › ${(page.crumbs || []).map(k => `<a href="${u(byKey[k].path)}">${L(byKey[k].title[0], byKey[k].title[1])}</a> › `).join('')}<span>${T}</span></nav>`;
   const head = page.key === 'home' ? '' : `<header class="page-head"><div class="container">${crumbs}<h1>${T}</h1></div></header>`;
-  const ld = [{ '@context': 'https://schema.org', '@type': 'NGO', name: ORG.name.en, url: SITE_URL + '/', logo: SITE_URL + '/assets/logo-large.webp', sameAs: Object.values(ORG.social),
-    address: { '@type': 'PostalAddress', streetAddress: 'Kadwapani, Karbari Grant', addressLocality: 'Dehradun', addressRegion: 'Uttarakhand', postalCode: '248171', addressCountry: 'IN' } }];
-  if (page.post) ld.push({ '@context': 'https://schema.org', '@type': 'BlogPosting', headline: page.post.title.en, datePublished: page.post.date, image: SITE_URL + `/assets/img/${page.post.img}.webp`, mainEntityOfPage: url, publisher: { '@type': 'Organization', name: ORG.name.en } });
+  const ogImg = SITE_URL + `/assets/img/${page.post ? page.post.img : (page.og || 'cows-in-shed')}.webp`;
+  const ld = [{ '@context': 'https://schema.org', '@type': 'NGO', '@id': SITE_URL + '/#org', name: ORG.name.en, alternateName: 'Hariom Ashram', url: SITE_URL + '/', logo: SITE_URL + '/assets/logo-large.webp', image: ogImg, foundingDate: '2006',
+    description: 'Gaushala, gurukul and environment work at Kadwapani, Karbari Grant, Dehradun, Uttarakhand.', sameAs: Object.values(ORG.social),
+    contactPoint: { '@type': 'ContactPoint', telephone: '+91-8193989452', contactType: 'customer support', availableLanguage: ['en', 'hi'] },
+    address: { '@type': 'PostalAddress', streetAddress: 'Kadwapani, Karbari Grant', addressLocality: 'Dehradun', addressRegion: 'Uttarakhand', postalCode: '248171', addressCountry: 'IN' } },
+    { '@context': 'https://schema.org', '@type': 'WebSite', name: ORG.name.en, url: SITE_URL + '/', inLanguage: ['en', 'hi'], publisher: { '@id': SITE_URL + '/#org' } }];
+  if (page.key !== 'home' && page.key !== 'notfound') {
+    const trail = [['Home', SITE_URL + '/'], ...(page.crumbs || []).map(k => [byKey[k].title[0], SITE_URL + '/' + byKey[k].path]), [page.title[0], url]];
+    ld.push({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: trail.map(([name, item], i) => ({ '@type': 'ListItem', position: i + 1, name, item })) });
+  }
+  if (page.post) ld.push({ '@context': 'https://schema.org', '@type': 'BlogPosting', headline: page.post.title.en, description: page.desc[0], datePublished: page.post.date, dateModified: page.post.date, image: ogImg, mainEntityOfPage: url, author: { '@type': 'Organization', name: ORG.name.en }, publisher: { '@id': SITE_URL + '/#org' } });
   const btnLabel = L('हिंदी', 'English');
   const footName = L(ORG.name.en, ORG.name.hi), footAddr = L(ORG.addr.en, ORG.addr.hi);
   const footer = `<footer class="site-footer"><div class="container foot-grid">
@@ -104,7 +112,9 @@ function render(page) {
 <title>${esc(full)}</title>
 <meta name="description" content="${esc(D)}">
 <link rel="canonical" href="${url}">
-<meta property="og:type" content="${page.post ? 'article' : 'website'}"><meta property="og:site_name" content="${esc(ORG.name.en)}"><meta property="og:title" content="${esc(full)}"><meta property="og:description" content="${esc(D)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${SITE_URL}/assets/img/${page.post ? page.post.img : 'cows-in-shed'}.webp">
+<meta property="og:type" content="${page.post ? 'article' : 'website'}"><meta property="og:site_name" content="${esc(ORG.name.en)}"><meta property="og:title" content="${esc(full)}"><meta property="og:description" content="${esc(D)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${ogImg}"><meta property="og:image:alt" content="${esc(T)}"><meta property="og:locale" content="en_IN"><meta property="og:locale:alternate" content="hi_IN">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(full)}"><meta name="twitter:description" content="${esc(D)}"><meta name="twitter:image" content="${ogImg}">
+<meta name="robots" content="index,follow,max-image-preview:large"><meta name="author" content="${esc(ORG.name.en)}"><meta name="geo.region" content="IN-UT"><meta name="geo.placename" content="Dehradun">
 <meta name="theme-color" content="#2E7D32">
 <link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><link rel="manifest" href="/manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -117,10 +127,12 @@ function render(page) {
 <div class="topbar"><div class="container">${icon('shield')} <span>${L('All donations are tax exempted under section 80G(5)(iii) of Income Tax Act', 'सभी दान आयकर अधिनियम की धारा 80G(5)(iii) के अंतर्गत कर-मुक्त हैं')}</span></div></div>
 <header class="site-header"><div class="container nav">
   <a class="brand" href="${u('')}"><img src="/assets/logo.webp" alt="" width="${LOGO_W}" height="64"><span><strong>${brandTitle}</strong><small>गौशाला । गुरुकुल । पर्यावरण</small></span></a>
-  <button class="menu-btn" aria-label="${menuLbl}" aria-expanded="false" aria-controls="menu">☰</button>
   <nav id="menu" class="menu">${nav}
+    <a class="btn btn-primary menu-donate" href="${u('donate/')}">${icon('heart')} ${donate}</a></nav>
+  <div class="nav-right">
     <button type="button" class="lang-switch" data-lang-toggle>${btnLabel}</button>
-    <a class="btn btn-primary" href="${u('donate/')}">${donate}</a></nav></div></header>
+    <a class="btn btn-primary nav-donate" href="${u('donate/')}">${icon('heart')} ${donate}</a>
+    <button class="menu-btn" aria-label="${menuLbl}" aria-expanded="false" aria-controls="menu">☰</button></div></div></header>
 <main id="main">${head}<div class="${page.key === 'home' ? '' : 'section'}">${body}</div></main>
 ${footer}
 <script type="application/json" id="hi-dict">${dict}</script>
@@ -135,7 +147,7 @@ fs.mkdirSync(OUT + '/css', { recursive: true }); fs.mkdirSync(OUT + '/js', { rec
 // If the site lives under a sub-path (e.g. github.io/hariomashram), prefix every root-relative link with it.
 const BASE = new URL(SITE_URL).pathname.replace(/\/$/, '');
 const fix = html => html.replace(/(href|src)="\/(?!\/)/g, `$1="${BASE}/`);
-fs.writeFileSync(OUT + '/css/style.css', fs.readFileSync('src/style.css', 'utf8') + '\n' + fs.readFileSync('src/style-extra.css', 'utf8')); fs.copyFileSync('src/main.js', OUT + '/js/main.js');
+fs.writeFileSync(OUT + '/css/style.css', fs.readFileSync('src/style.css', 'utf8') + '\n' + fs.readFileSync('src/style-extra.css', 'utf8') + '\n' + fs.readFileSync('src/style-nav.css', 'utf8')); fs.copyFileSync('src/main.js', OUT + '/js/main.js');
 fs.writeFileSync(OUT + '/manifest.webmanifest', fs.readFileSync('src/manifest.webmanifest', 'utf8').replaceAll('"/', `"${BASE}/`));
 fs.writeFileSync(OUT + '/.nojekyll', '');
 const urls = [];
@@ -148,5 +160,5 @@ for (const page of pages) {
 const today = new Date().toISOString().slice(0, 10);
 fs.writeFileSync(OUT + '/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(l => `<url><loc>${l}</loc><lastmod>${today}</lastmod></url>`).join('\n')}\n</urlset>\n`);
 fs.writeFileSync(OUT + '/robots.txt', `User-agent: *\nAllow: /\nSitemap: ${SITE_URL}/sitemap.xml\n`);
-fs.writeFileSync(OUT + '/404.html', fix(render({ key: 'notfound', path: '404.html', title: ['Page not found', 'पृष्ठ नहीं मिला'], desc: ['Page not found', 'पृष्ठ नहीं मिला'], body: L => `<div class="container"><p>${L('Sorry, that page does not exist.', 'क्षमा करें, यह पृष्ठ मौजूद नहीं है।')} <a href="/">${L('Go home', 'होम पर जाएँ')}</a></p></div>` })).replace('<meta name="description"', '<meta name="robots" content="noindex"><meta name="description"'));
+fs.writeFileSync(OUT + '/404.html', fix(render({ key: 'notfound', path: '404.html', title: ['Page not found', 'पृष्ठ नहीं मिला'], desc: ['Page not found', 'पृष्ठ नहीं मिला'], body: L => `<div class="container"><p>${L('Sorry, that page does not exist.', 'क्षमा करें, यह पृष्ठ मौजूद नहीं है।')} <a href="/">${L('Go home', 'होम पर जाएँ')}</a></p></div>` })).replace('index,follow,max-image-preview:large', 'noindex'));
 console.log(`Built ${urls.length} pages into ${OUT}/`);

@@ -1,0 +1,19 @@
+/* header v3: language button sits beside the menu button; submenu collapsed by default on mobile */
+.nav-right{display:flex;align-items:center;gap:10px}
+.menu .menu-donate{display:none}
+.dd-toggle{display:none}
+@media(max-width:860px){
+  .nav-donate{display:none}
+  .menu .menu-donate{display:inline-block;margin-top:4px}
+  .menu-btn{display:block}
+  .lang-switch{padding:7px 14px}
+  .dd{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;width:100%}
+  .dd>a{flex:1}
+  .dd>a .caret{display:none}
+  .dd-toggle{display:inline-grid;place-items:center;width:38px;height:38px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--green-d);font-size:1rem;cursor:pointer;transition:transform .2s}
+  .dd.open .dd-toggle{transform:rotate(180deg);background:var(--cream)}
+  .dd-menu{display:none;position:static;width:100%;border:0;box-shadow:none;padding:4px 0 0 12px;min-width:0}
+  .dd.open .dd-menu{display:block}
+  .dd:hover .dd-menu{display:none}
+  .dd.open:hover .dd-menu{display:block}
+}

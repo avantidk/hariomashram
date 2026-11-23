@@ -45,6 +45,14 @@
   var btn = $('.menu-btn'), menu = $('#menu');
   if (btn) btn.addEventListener('click', function () { btn.setAttribute('aria-expanded', menu.classList.toggle('open')); });
 
+  // Mobile submenu: collapsed by default, tap the arrow to expand
+  $$('.dd-toggle').forEach(function (t) {
+    t.addEventListener('click', function () {
+      var open = t.parentNode.classList.toggle('open');
+      t.setAttribute('aria-expanded', open);
+    });
+  });
+
   // Amount chips on campaign pages
   $$('[data-chip]').forEach(function (c) {
     c.addEventListener('click', function () {

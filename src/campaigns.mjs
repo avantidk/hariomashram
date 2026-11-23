@@ -131,7 +131,7 @@ ${progress(L, c)}
 <p class="small"><a href="${u('transparency/')}">${icon('file')} ${L('Bank & UPI details', 'बैंक एवं UPI विवरण')}</a> · <a href="${ORG.whatsapp}" target="_blank" rel="noopener">${icon('whatsapp-f')} WhatsApp</a></p></aside>`;
 
 export const campaignPages = campaigns.map(c => ({
-  key: 'camp-' + c.slug, path: `campaigns/${c.slug}/`, crumbs: ['campaigns'], title: [c.title.en, c.title.hi], desc: [c.short.en, c.short.hi],
+  key: 'camp-' + c.slug, path: `campaigns/${c.slug}/`, crumbs: ['campaigns'], og: c.img, title: [c.title.en, c.title.hi], desc: [c.short.en, c.short.hi],
   body: (L, u) => `<div class="blk"><div class="container camp-grid"><div class="camp-main"><div class="photo">${img(c.img, L(c.alt.en, c.alt.hi), c.iw, c.ih, 'loading="eager" fetchpriority="high"')}</div>${c.body(L, u).join('')}</div>${donateAside(L, u, c)}</div></div>
     <section class="blk alt"><div class="container"><h2>${L('Other ways to give', 'सहयोग के अन्य तरीके')}</h2><div class="cards">${campaigns.filter(x => x !== c).slice(0, 3).map(x => campaignCard(L, u, x)).join('')}</div></div></section>${cta(L, u)}`
 }));
