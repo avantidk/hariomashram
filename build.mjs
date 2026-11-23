@@ -53,8 +53,8 @@ const pages = [
 
 function socialLinks() {
   const ic = { Facebook: 'facebook-f', Instagram: 'instagram-f', YouTube: 'youtube-f' };
-  return Object.entries(ORG.social).map(([n, h]) => `<a class="soc" href="${h}" target="_blank" rel="noopener me" aria-label="${n}">${icon(ic[n])}<span>${n}</span></a>`).join('') +
-    `<a class="soc" href="${ORG.whatsapp}" target="_blank" rel="noopener" aria-label="WhatsApp">${icon('whatsapp-f')}<span>WhatsApp</span></a>`;
+  return Object.entries(ORG.social).map(([n, h]) => `<a class="soc" href="${h}" target="_blank" rel="noopener me" aria-label="${n}" title="${n}">${icon(ic[n])}</a>`).join('') +
+    `<a class="soc" href="${ORG.whatsapp}" target="_blank" rel="noopener" aria-label="WhatsApp" title="WhatsApp">${icon('whatsapp-f')}</a>`;
 }
 function postCards(L, u, list) {
   return list.map(p => `<a class="card link" href="${u('blog/' + p.slug + '/')}">${img(p.img, L(p.title.en, p.title.hi), 560, 560)}<time datetime="${p.date}">${L(fmtDate(p.date, 'en'), fmtDate(p.date, 'hi'))}</time><h3>${L(p.title.en, p.title.hi)}</h3><p>${L(p.excerpt.en, p.excerpt.hi)}</p></a>`).join('');
